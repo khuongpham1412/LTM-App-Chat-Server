@@ -7,36 +7,36 @@ package Models;
 import Enum.StatusMessage;
 import Enum.TypeMessage;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  *
  * @author Asus
  */
 public class Message implements Serializable{
-    private UUID id;
+    private String id;
     private String message;
-    private TypeMessage type;
-    private Date daySend;
-    private StatusMessage status;
+    private String type;
+    private Date dateSend;
+    private String status;
     private String idRoom;
-    private int user_send;
-    private int user_receive;
+    private String user_send;
+    private String user_receive;
 
-    public int getUser_send() {
+    public String getUser_send() {
         return user_send;
     }
 
-    public void setUser_send(int user_send) {
+    public void setUser_send(String user_send) {
         this.user_send = user_send;
     }
 
-    public int getUser_receive() {
+    public String getUser_receive() {
         return user_receive;
     }
 
-    public void setUser_receive(int user_receive) {
+    public void setUser_receive(String user_receive) {
         this.user_receive = user_receive;
     }
     
@@ -44,22 +44,22 @@ public class Message implements Serializable{
         
     }
 
-    public Message(UUID id, String message, TypeMessage type, Date daySend, StatusMessage status, String idRoom, int user_send, int user_receive) {
+    public Message(String id, String message, String type, Date dateSend, String status, String idRoom, String user_send, String user_receive) {
         this.id = id;
         this.message = message;
         this.type = type;
-        this.daySend = daySend;
+        this.dateSend = dateSend;
         this.status = status;
         this.idRoom = idRoom;
         this.user_send = user_send;
         this.user_receive = user_receive;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -71,27 +71,27 @@ public class Message implements Serializable{
         this.message = message;
     }
 
-    public TypeMessage getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(TypeMessage type) {
+    public void setType(String type) {
         this.type = type;
     }
 
-    public Date getDaySend() {
-        return daySend;
+    public Date getDateSend() {
+        return dateSend;
     }
 
-    public void setDaySend(Date daySend) {
-        this.daySend = daySend;
+    public void setDateSend(Date dateSend) {
+        this.dateSend = dateSend;
     }
 
-    public StatusMessage getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(StatusMessage status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

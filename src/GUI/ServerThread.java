@@ -5,13 +5,20 @@
 package GUI;
 
 import BUL.AccountBUL;
+import BUL.MessageBUL;
 import DAL.AccountDAL;
+import DAL.MessageDAL;
+import DAL.RoomDAL;
+import DAL.UserRoomDAL;
 import Enum.Status;
+import Enum.StatusMessage;
 import Models.Account;
 import Models.RequestModel.DataRequest;
 import Models.ResponseModel.DataResponse;
 import Models.Message;
 import Models.AccountOnline;
+import Models.ResponseModel.MessItemResponse;
+import Models.UserRoom;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -69,6 +76,32 @@ public class ServerThread implements Runnable{
                             
                             write(response);
                         }
+                        case "GET_ALL_ACCOUNTS_MESSAGGETED_REQUEST" -> {
+                            String userId = (String) message.getRequest();
+                            ArrayList<MessItemResponse> messItems = new ArrayList<>();
+                            ArrayList<UserRoom> userRooms = new UserRoomDAL().getAllRoomByUserId(userId);
+                            if(!userRooms.isEmpty()){
+                                for(UserRoom item : userRooms){
+                                    if(!item.getUserSendId().equals(userId)){
+                                        Account acc = new AccountBUL().getAccountById(item.getUserSendId());
+                                        messItems.add(new MessItemResponse(acc.getId(), item.getRoomId(), acc.getUsername(), "TEXT NEW MESS", StatusMessage.SEEN.toString()));
+                                    }else{
+                                        Account acc = new AccountBUL().getAccountById(item.getUserReceivedId());
+                                        messItems.add(new MessItemResponse(acc.getId(), item.getRoomId(), acc.getUsername(), "TEXT NEW MESS", StatusMessage.SEEN.toString()));
+                                    }
+                                }
+                            }
+                            
+                            DataResponse response = new DataResponse();
+                            response.setName("GET_ALL_ACCOUNTS_MESSAGGETED_RESPONSE");
+                            response.setData(messItems);
+                            response.setStatus(Status.SUCCESS);
+                            
+                            write(response);
+                        }
+                        case "GET_ALL_ACCOUNTS_ONLINE_REQUEST" -> {
+                            
+                        }
                         case "GET_ALL_ACCOUNTS_REQUEST" ->  {
                             ArrayList<Account> accounts = new AccountDAL().getAllAccount();
                             DataResponse response = new DataResponse();
@@ -78,15 +111,29 @@ public class ServerThread implements Runnable{
                             
                             write(response);
                         }
+                        case "GET_ALL_MESSAGE_BY_ROOM_ID_REQUEST" -> {
+                            String roomId = (String) message.getRequest();
+                            ArrayList<Message> messages = new MessageBUL().getAllMessageByRoomId(roomId);
+                            DataResponse response = new DataResponse();
+                            response.setName("GET_ALL_MESSAGE_BY_ROOM_ID_RESPONSE");
+                            response.setStatus(Status.SUCCESS);
+                            response.setData(messages);
+                            
+                            write(response);
+                        }
                         case "SEND_MESSAGE_PRIVATE_REQUEST" ->  {
                             Message mess = (Message) message.getRequest();
-                            DataResponse response = new DataResponse();
-                            response.setName("SEND_MESSAGE_PRIVATE_RESPONSE");
-                            response.setStatus(Status.SUCCESS);
-                            response.setData(mess);
-                            
-                            serverBUL.sendPrivate(mess.getUser_send(), mess.getUser_receive(), response);
+                            if(new MessageBUL().add(mess)){
+                                DataResponse response = new DataResponse();
+                                response.setName("SEND_MESSAGE_PRIVATE_RESPONSE");
+                                response.setStatus(Status.SUCCESS);
+                                response.setData(mess);
+                                MessageDAL messageDAL = new MessageDAL();
+                                messageDAL.add(mess);
+                                serverBUL.sendPrivate(mess.getUser_send(), mess.getUser_receive(), response);
+                            }
                         }
+                        
                         default ->  {
                             System.out.println("Option not exists !!!");
                         }

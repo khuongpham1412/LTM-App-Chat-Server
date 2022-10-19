@@ -19,12 +19,12 @@ import java.io.OutputStreamWriter;
 public class AccountOnline {
     ObjectInputStream is;
     ObjectOutputStream os;
-    private int id;
+    private String id;
 
     public AccountOnline() {
     }
 
-    public AccountOnline(ObjectInputStream is, ObjectOutputStream os, int id) {
+    public AccountOnline(ObjectInputStream is, ObjectOutputStream os, String id) {
         this.is = is;
         this.os = os;
         this.id = id;
@@ -46,11 +46,11 @@ public class AccountOnline {
         this.os = os;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

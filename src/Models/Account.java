@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @author Asus
  */
 public class Account implements Serializable{
-    private int id;
+    private String id;
     private String username;
     private String password;
     
@@ -19,17 +19,17 @@ public class Account implements Serializable{
         
     }
 
-    public Account(int id, String username, String password) {
+    public Account(String id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

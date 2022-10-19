@@ -36,7 +36,7 @@ public class AccountDAL {
             rs=st.executeQuery(query);
             while (rs.next()){
                 Account account=new Account();
-                account.setId(rs.getInt(1));
+                account.setId(rs.getString(1));
                 account.setUsername(rs.getString(2));
                 account.setPassword(rs.getString(3));
                 listAccount.add(account);
@@ -54,7 +54,24 @@ public class AccountDAL {
             st=conn.createStatement();
             rs= st.executeQuery(query);
             while(rs.next()){
-                account.setId(rs.getInt(1));
+                account.setId(rs.getString(1));
+                account.setUsername(rs.getString(2));
+                account.setPassword(rs.getString(3));
+            }
+        }catch (SQLException ex){
+            System.out.println("SVDAO docDSSV");
+        }
+        return account;
+    }
+    
+    public Account getAccountById(String id){
+        Account account=new Account();
+        try{
+            String query="Select * from tbl_account where id = '"+id+"'";
+            st=conn.createStatement();
+            rs= st.executeQuery(query);
+            while(rs.next()){
+                account.setId(rs.getString(1));
                 account.setUsername(rs.getString(2));
                 account.setPassword(rs.getString(3));
             }

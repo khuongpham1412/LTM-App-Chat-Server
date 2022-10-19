@@ -27,4 +27,8 @@ public class AccountBUL {
     public Account getAccountByUsername(String username){
         return accountDAL.getAccountByUsername(username);
     }
+    
+    public Account getAccountById(String id){
+        return accountDAL.getAccountById(id);
+    }
 }

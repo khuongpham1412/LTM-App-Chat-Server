@@ -22,9 +22,9 @@ public class ServerThreadBUL {
     public ServerThreadBUL(){
     }
     
-    public void sendPrivate(int id, int id_receive, DataResponse data){
+    public void sendPrivate(String id, String id_receive, DataResponse data){
         for(AccountOnline item : this.listClient){
-            if(item.getId() == id || item.getId() == id_receive){
+            if(item.getId().equals(id) || item.getId().equals(id_receive)){
                 try {
                 item.getOs().writeObject(data);
                 item.getOs().flush();
