@@ -79,16 +79,13 @@ public class ServerThread implements Runnable{
                         case "GET_ALL_ACCOUNTS_MESSAGGETED_REQUEST" -> {
                             String userId = (String) message.getRequest();
                             ArrayList<MessItemResponse> messItems = new ArrayList<>();
-                            ArrayList<UserRoom> userRooms = new UserRoomDAL().getAllRoomByUserId(userId);
-                            if(!userRooms.isEmpty()){
-                                for(UserRoom item : userRooms){
-                                    if(!item.getUserSendId().equals(userId)){
-                                        Account acc = new AccountBUL().getAccountById(item.getUserSendId());
-                                        messItems.add(new MessItemResponse(acc.getId(), item.getRoomId(), acc.getUsername(), "TEXT NEW MESS", StatusMessage.SEEN.toString()));
-                                    }else{
-                                        Account acc = new AccountBUL().getAccountById(item.getUserReceivedId());
-                                        messItems.add(new MessItemResponse(acc.getId(), item.getRoomId(), acc.getUsername(), "TEXT NEW MESS", StatusMessage.SEEN.toString()));
-                                    }
+                            ArrayList<String> rooms = new UserRoomDAL().getRoomIdByUserId(userId);
+                            if(!rooms.isEmpty()){
+                                for(String roomId : rooms){
+                                    String accId = new UserRoomDAL().getUserIdByRoomId(userId, roomId);
+                                    String newMess = new MessageBUL().getNewMessageByRoomId(roomId);
+                                    Account acc = new AccountBUL().getAccountById(accId);
+                                    messItems.add(new MessItemResponse(acc.getId(), roomId, acc.getUsername(), newMess, StatusMessage.SEEN.toString()));
                                 }
                             }
                             

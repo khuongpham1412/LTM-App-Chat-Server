@@ -35,16 +35,37 @@ public class UserRoomDAL {
     public ArrayList<UserRoom> getAllRoomByUserId(String id){
         ArrayList<UserRoom> list = new ArrayList<>();
         try{
-            String sql = "select * from tbl_user_room where user_send_id = ? or user_received_id = ?";
+            String sql = "select * from tbl_user_room where user_id = ? and type ='PRIVATE'";
             pts = conn.prepareStatement(sql);
             pts.setString(1,id);
-            pts.setString(2,id);
             rs = pts.executeQuery();
             while(rs.next()){
                 UserRoom item = new UserRoom();
-                item.setUserSendId(rs.getString(1));
+                item.setUserId(rs.getString(1));
                 item.setRoomId(rs.getString(2));
-                item.setUserReceivedId(rs.getString(3));
+                item.setType(rs.getString(3));
+                list.add(item);
+            }
+            return list;
+        }catch(SQLException e){
+            System.out.print(e);
+        }
+        return null;
+    }
+    
+    public ArrayList<UserRoom> getAllRoomByRoomId(String roomId, String userId){
+        ArrayList<UserRoom> list = new ArrayList<>();
+        try{
+            String sql = "select * from tbl_user_room where room_id = ? and user_id != ? and type ='PRIVATE'";
+            pts = conn.prepareStatement(sql);
+            pts.setString(1,roomId);
+            pts.setString(2,userId);
+            rs = pts.executeQuery();
+            while(rs.next()){
+                UserRoom item = new UserRoom();
+                item.setUserId(rs.getString(1));
+                item.setRoomId(rs.getString(2));
+                item.setType(rs.getString(3));
                 list.add(item);
             }
             return list;
@@ -71,5 +92,37 @@ public class UserRoomDAL {
         return false;
     }
     
-    
+    public ArrayList<String> getRoomIdByUserId(String userId){
+        ArrayList<String> list = new ArrayList<>();
+        try{
+            String sql = "select room_id from tbl_user_room where user_id = ? ";
+            pts = conn.prepareStatement(sql);
+            pts.setString(1,userId);         
+            rs = pts.executeQuery();
+            while(rs.next()){
+                list.add(rs.getString(1));
+            }
+            return list;
+        }catch(SQLException e){
+            System.out.print(e);
+        }
+        return null;
+    }
+    public String getUserIdByRoomId(String userId,String roomId){
+        String result = null;
+        try{
+            String sql = "select user_id from tbl_user_room where user_id != ? and room_id = ?";
+            pts = conn.prepareStatement(sql);
+            pts.setString(1,userId);  
+            pts.setString(2,roomId);
+            rs = pts.executeQuery();
+            while(rs.next()){
+                result =  rs.getString(1);
+            }
+            return result;
+        }catch(SQLException e){
+            System.out.print(e);
+        }
+        return null;
+    }
 }

@@ -25,4 +25,7 @@ public class MessageBUL {
     public ArrayList<Message> getAllMessageByRoomId(String roomId){
         return messageDAL.getAllMessageByRoomId(roomId);
     }
+    public String getNewMessageByRoomId(String roomId){
+        return messageDAL.getNewMessageByRoomId(roomId);
+    }
 }

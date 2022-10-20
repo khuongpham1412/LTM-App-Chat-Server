@@ -11,25 +11,25 @@ import java.io.Serializable;
  * @author Asus
  */
 public class UserRoom implements Serializable{
-    private String userSendId;
+    private String userId;
     private String roomId;
-    private String userReceivedId;
+    private String type;
     public UserRoom(){
         
     }
 
-    public UserRoom(String userSendId, String roomId, String userReceivedId) {
-        this.userSendId = userSendId;
+    public UserRoom(String userId, String roomId, String type) {
+        this.userId = userId;
         this.roomId = roomId;
-        this.userReceivedId = userReceivedId;
+        this.type = type;
     }
 
-    public String getUserSendId() {
-        return userSendId;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUserSendId(String userSendId) {
-        this.userSendId = userSendId;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getRoomId() {
@@ -40,14 +40,12 @@ public class UserRoom implements Serializable{
         this.roomId = roomId;
     }
 
-    public String getUserReceivedId() {
-        return userReceivedId;
+    public String getType() {
+        return type;
     }
 
-    public void setUserReceivedId(String userReceivedId) {
-        this.userReceivedId = userReceivedId;
+    public void setType(String type) {
+        this.type = type;
     }
-
-    
-    
+     
 }

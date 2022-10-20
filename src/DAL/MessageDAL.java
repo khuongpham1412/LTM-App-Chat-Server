@@ -87,4 +87,21 @@ public class MessageDAL {
         }
         return null;
     }
+    
+    public String getNewMessageByRoomId(String roomId){
+        String mess=null;
+        try{
+            String sql = "select top 1 message from tbl_message where room_id = ? order by date_send desc";
+            pts = conn.prepareStatement(sql);
+            pts.setString(1,roomId);
+            rs = pts.executeQuery();
+            while(rs.next()){
+                mess = rs.getString(1);
+            }
+            return mess;
+        }catch(SQLException e){
+            System.out.print(e);
+        }
+        return null;
+    }
 }
