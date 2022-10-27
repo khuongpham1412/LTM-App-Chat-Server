@@ -43,6 +43,19 @@ public class MessageDAL {
         return false;
     }
     
+    public boolean updateStatus(String status, String id){
+        try{
+            String sql = "UPDATE tbl_message SET status = ? WHERE id = ?;";
+            pts = conn.prepareStatement(sql);
+            pts.setString(1, status);
+            pts.setString(2, id);
+            return pts.executeUpdate() > 0;
+        }catch(SQLException e){
+            System.out.print(e);
+        }
+        return false;
+    }
+    
     public ArrayList<Message> getInfomationRoomByUserId(int id){
         ArrayList<Message> list = new ArrayList<>();
         try{
@@ -88,17 +101,52 @@ public class MessageDAL {
         return null;
     }
     
-    public String getNewMessageByRoomId(String roomId){
-        String mess=null;
+    public ArrayList<Message> getAllMessageByRoomIdExceptSeenStatus(String roomId){
+        ArrayList<Message> list = new ArrayList<>();
         try{
-            String sql = "select top 1 message from tbl_message where room_id = ? order by date_send desc";
+            String sql = "select * from tbl_message where room_id = ? and status != 'SEEN'";
             pts = conn.prepareStatement(sql);
             pts.setString(1,roomId);
             rs = pts.executeQuery();
             while(rs.next()){
-                mess = rs.getString(1);
+                Message item = new Message();
+                item.setId(rs.getString(1));
+                item.setMessage(rs.getString(2));
+                item.setType(rs.getString(3));
+                item.setDateSend(rs.getTimestamp(4));
+                item.setStatus(rs.getString(5));
+                item.setIdRoom(rs.getString(6));
+                item.setUser_send(rs.getString(7));
+                item.setUser_receive(rs.getString(8));
+                list.add(item);
             }
-            return mess;
+            return list;
+        }catch(SQLException e){
+            System.out.print(e);
+        }
+        return null;
+    }
+    
+    public ArrayList<Message> getNewMessageByRoomId(String roomId){
+        ArrayList<Message> list = new ArrayList<>();
+        try{
+            String sql = "select top 1 * from tbl_message where room_id = ? order by date_send desc";
+            pts = conn.prepareStatement(sql);
+            pts.setString(1,roomId);
+            rs = pts.executeQuery();
+            while(rs.next()){
+                Message item = new Message();
+                item.setId(rs.getString(1));
+                item.setMessage(rs.getString(2));
+                item.setType(rs.getString(3));
+                item.setDateSend(rs.getTimestamp(4));
+                item.setStatus(rs.getString(5));
+                item.setIdRoom(rs.getString(6));
+                item.setUser_send(rs.getString(7));
+                item.setUser_receive(rs.getString(8));
+                list.add(item);
+            }
+            return list;
         }catch(SQLException e){
             System.out.print(e);
         }

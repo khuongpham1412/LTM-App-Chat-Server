@@ -25,7 +25,13 @@ public class MessageBUL {
     public ArrayList<Message> getAllMessageByRoomId(String roomId){
         return messageDAL.getAllMessageByRoomId(roomId);
     }
-    public String getNewMessageByRoomId(String roomId){
+    public ArrayList<Message> getNewMessageByRoomId(String roomId){
         return messageDAL.getNewMessageByRoomId(roomId);
+    }
+    public boolean updateStatus(String status, String id){
+        return messageDAL.updateStatus(status, id);
+    }
+    public ArrayList<Message> getAllMessageByRoomIdExceptSeenStatus(String roomId){
+        return messageDAL.getAllMessageByRoomIdExceptSeenStatus(roomId);
     }
 }

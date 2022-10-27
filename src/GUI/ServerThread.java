@@ -8,17 +8,14 @@ import BUL.AccountBUL;
 import BUL.MessageBUL;
 import DAL.AccountDAL;
 import DAL.MessageDAL;
-import DAL.RoomDAL;
 import DAL.UserRoomDAL;
 import Enum.Status;
-import Enum.StatusMessage;
 import Models.Account;
 import Models.RequestModel.DataRequest;
 import Models.ResponseModel.DataResponse;
 import Models.Message;
 import Models.AccountOnline;
 import Models.ResponseModel.MessItemResponse;
-import Models.UserRoom;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -83,9 +80,9 @@ public class ServerThread implements Runnable{
                             if(!rooms.isEmpty()){
                                 for(String roomId : rooms){
                                     String accId = new UserRoomDAL().getUserIdByRoomId(userId, roomId);
-                                    String newMess = new MessageBUL().getNewMessageByRoomId(roomId);
+                                    ArrayList<Message> newMess = new MessageBUL().getNewMessageByRoomId(roomId);
                                     Account acc = new AccountBUL().getAccountById(accId);
-                                    messItems.add(new MessItemResponse(acc.getId(), roomId, acc.getUsername(), newMess, StatusMessage.SEEN.toString()));
+                                    messItems.add(new MessItemResponse(acc.getId(), roomId, acc.getUsername(), newMess.get(0).getMessage(), newMess.get(0).getStatus()));
                                 }
                             }
                             
@@ -99,6 +96,26 @@ public class ServerThread implements Runnable{
                         case "GET_ALL_ACCOUNTS_ONLINE_REQUEST" -> {
                             
                         }
+                        case "RESET_PANEL_LEFT_REQUEST" -> {
+                            String userId = (String) message.getRequest();
+                            ArrayList<MessItemResponse> messItems = new ArrayList<>();
+                            ArrayList<String> rooms = new UserRoomDAL().getRoomIdByUserId(userId);
+                            if(!rooms.isEmpty()){
+                                for(String roomId : rooms){
+                                    String accId = new UserRoomDAL().getUserIdByRoomId(userId, roomId);
+                                    ArrayList<Message> newMess = new MessageBUL().getNewMessageByRoomId(roomId);
+                                    Account acc = new AccountBUL().getAccountById(accId);
+                                    messItems.add(new MessItemResponse(acc.getId(), roomId, acc.getUsername(), newMess.get(0).getMessage(), newMess.get(0).getStatus()));
+                                }
+                            }
+                            
+                            DataResponse response = new DataResponse();
+                            response.setName("RESET_PANEL_LEFT_RESPONSE");
+                            response.setData(messItems);
+                            response.setStatus(Status.SUCCESS);
+                            
+                            write(response);
+                        }
                         case "GET_ALL_ACCOUNTS_REQUEST" ->  {
                             ArrayList<Account> accounts = new AccountDAL().getAllAccount();
                             DataResponse response = new DataResponse();
@@ -110,13 +127,18 @@ public class ServerThread implements Runnable{
                         }
                         case "GET_ALL_MESSAGE_BY_ROOM_ID_REQUEST" -> {
                             String roomId = (String) message.getRequest();
+                            ArrayList<Message> messExcept = new MessageBUL().getAllMessageByRoomIdExceptSeenStatus(roomId);
+                            for(Message item : messExcept){
+                                new MessageBUL().updateStatus("SEEN", item.getId());
+                            }
+                            
                             ArrayList<Message> messages = new MessageBUL().getAllMessageByRoomId(roomId);
                             DataResponse response = new DataResponse();
                             response.setName("GET_ALL_MESSAGE_BY_ROOM_ID_RESPONSE");
                             response.setStatus(Status.SUCCESS);
                             response.setData(messages);
                             
-                            write(response);
+                            serverBUL.sendPrivate(messages.get(0).getUser_send() , messages.get(0).getUser_receive(), response);
                         }
                         case "SEND_MESSAGE_PRIVATE_REQUEST" ->  {
                             Message mess = (Message) message.getRequest();
@@ -125,10 +147,20 @@ public class ServerThread implements Runnable{
                                 response.setName("SEND_MESSAGE_PRIVATE_RESPONSE");
                                 response.setStatus(Status.SUCCESS);
                                 response.setData(mess);
-                                MessageDAL messageDAL = new MessageDAL();
-                                messageDAL.add(mess);
+//                                MessageDAL messageDAL = new MessageDAL();
+//                                messageDAL.add(mess);
                                 serverBUL.sendPrivate(mess.getUser_send(), mess.getUser_receive(), response);
                             }
+                        }
+                        case "UPDATE_STATUS_MESSAGE_REQUEST" -> {
+                            Message request = (Message) message.getRequest();
+                            new MessageBUL().updateStatus(request.getStatus(), request.getId());
+                            DataResponse response = new DataResponse();
+                            response.setName("UPDATE_STATUS_MESSAGE_RESPONSE");
+                            response.setStatus(Status.SUCCESS);
+                            response.setData(request);
+                            
+                            serverBUL.sendPrivate(request.getUser_send(), request.getUser_receive(), response);
                         }
                         
                         default ->  {
