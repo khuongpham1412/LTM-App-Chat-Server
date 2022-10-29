@@ -22,30 +22,41 @@ public class ServerThreadBUL {
     public ServerThreadBUL(){
     }
     
-    public void sendPrivate(String id, String id_receive, DataResponse data){
+    public void sendPrivate(String userId, String id_receive, DataResponse data){
         for(AccountOnline item : this.listClient){
-            if(item.getId().equals(id) || item.getId().equals(id_receive)){
+            if(item.getId().equals(userId) || item.getId().equals(id_receive)){
                 try {
-                item.getOs().writeObject(data);
-                item.getOs().flush();
-            } catch (IOException ex) {
-                Logger.getLogger(ServerThreadBUL.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                    item.getOs().writeObject(data);
+                    item.getOs().flush();
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerThreadBUL.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }
     
-//    public void sendMultiple(String mess){
-//        for(AccountOnline item : this.listClient){
-//            try {
-//                item.getOs().writeObject(data);
-//                item.getOs().flush();
-//                System.out.println("info: "+item.getId()+" "+item.getOs());
-//            } catch (IOException ex) {
-//                Logger.getLogger(ServerThreadBUL.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
-//    }
+    public void sendMultiple(String userId, ArrayList<String> userRec, DataResponse data){
+        for(AccountOnline item : this.listClient){
+            if(item.getId().equals(userId)){
+                try {
+                    item.getOs().writeObject(data);
+                    item.getOs().flush();
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerThreadBUL.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            for(String item1 : userRec){
+                if(item.getId().equals(item1)){
+                    try {
+                        item.getOs().writeObject(data);
+                        item.getOs().flush();
+                    } catch (IOException ex) {
+                        Logger.getLogger(ServerThreadBUL.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
+    }
     
     public void addItem(AccountOnline accountOnline){
         listClient.add(accountOnline);

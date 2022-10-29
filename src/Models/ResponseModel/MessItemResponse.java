@@ -5,6 +5,7 @@
 package Models.ResponseModel;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  *
@@ -16,15 +17,18 @@ public class MessItemResponse implements Serializable{
     private String username;
     private String newMessage;
     private String status;
+    private String type;
     public MessItemResponse(){
         
     }
-    public MessItemResponse(String accountId, String roomId, String username, String newMessage, String status) {
+
+    public MessItemResponse(String accountId, String roomId, String username, String newMessage, String status, String type) {
         this.accountId = accountId;
         this.roomId = roomId;
         this.username = username;
         this.newMessage = newMessage;
         this.status = status;
+        this.type = type;
     }
 
     public String getAccountId() {
@@ -66,6 +70,13 @@ public class MessItemResponse implements Serializable{
     public void setStatus(String status) {
         this.status = status;
     }
-    
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
     
 }

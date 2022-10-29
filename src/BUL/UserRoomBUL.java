@@ -19,17 +19,17 @@ public class UserRoomBUL {
             userRoomDAL = new UserRoomDAL();
         }
     }
-    public ArrayList<UserRoom> add(String id){
-        return userRoomDAL.getAllRoomByUserId(id);
-    }
+   public boolean add(UserRoom user){
+       return userRoomDAL.add(user);
+   }
     
     public ArrayList<UserRoom> getAllRoomByRoomId(String roomId, String userId){
         return userRoomDAL.getAllRoomByRoomId(roomId, userId);
     }
-    public ArrayList<String> getRoomIdByUserId(String userId){
+    public ArrayList<UserRoom> getRoomIdByUserId(String userId){
         return userRoomDAL.getRoomIdByUserId(userId);
     }
-     public String getUserIdByRoomId(String userId,String roomId){
+     public ArrayList<String> getUserIdByRoomId(String userId,String roomId){
          return userRoomDAL.getUserIdByRoomId(userId, roomId);
      }
 }
