@@ -17,6 +17,7 @@ import Models.ResponseModel.DataResponse;
 import Models.Message;
 import Models.AccountOnline;
 import Models.RequestModel.CreateGroupChatRequest;
+import Models.RequestModel.GetAllMessageRequest;
 import Models.ResponseModel.MessItemResponse;
 import Models.UserRoom;
 import java.io.IOException;
@@ -135,21 +136,26 @@ public class ServerThread implements Runnable{
                             write(response);
                         }
                         case "GET_ALL_MESSAGE_BY_ROOM_ID_REQUEST" -> {
-                            String roomId = (String) message.getRequest();
-                            ArrayList<Message> messExcept = new MessageBUL().getAllMessageByRoomIdExceptSeenStatus(roomId);
-                            for(Message item : messExcept){
-                                new MessageBUL().updateStatus("SEEN", item.getId());
+                            GetAllMessageRequest request = (GetAllMessageRequest) message.getRequest();
+                            
+                            //Get all messages have status not SEEN
+                            ArrayList<Message> messExceptStatusSeen = new MessageBUL().getAllMessageByRoomIdExceptSeenStatus(request.getRoomId());
+                            if(!messExceptStatusSeen.isEmpty()){
+                                //Update all messages status to SEEN
+                                for(Message item : messExceptStatusSeen){
+                                    new MessageBUL().updateStatus("SEEN", item.getId());
+                                }
                             }
                             
-                            ArrayList<Message> messages = new MessageBUL().getAllMessageByRoomId(roomId);
-                                
+                            //Get all messages of room chat
+                            ArrayList<Message> messages = new MessageBUL().getAllMessageByRoomId(request.getRoomId());
+                            //Check room have message
                             DataResponse response = new DataResponse();
                             response.setName("GET_ALL_MESSAGE_BY_ROOM_ID_RESPONSE");
                             response.setStatus(Status.SUCCESS);
                             response.setData(messages);
-                                
                             write(response);
-//                          serverBUL.sendPrivate(messages.get(0).getUser_send() , messages.get(0).getUser_receive(), response);
+                            
                         }
                         case "SEND_MESSAGE_PRIVATE_REQUEST" ->  {
                             Message mess = (Message) message.getRequest();

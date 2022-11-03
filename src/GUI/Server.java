@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * @author Asus
  */
 public class Server extends javax.swing.JFrame {
-    
+
     private ServerSocket server;
     private int port = 9876;
     public Socket socket;
@@ -25,7 +25,7 @@ public class Server extends javax.swing.JFrame {
     private ObjectOutputStream os;
     private ServerThread serverThread;
     public static volatile ServerThreadBUL h;
-    
+
     /**
      * Creates new form Server
      */
@@ -33,23 +33,23 @@ public class Server extends javax.swing.JFrame {
         initComponents();
         connect();
     }
-    
-    private void connect(){
+
+    private void connect() {
         try {
             server = new ServerSocket(port);
             Thread t1 = new Thread(() -> {
-                while(true){
+                while (true) {
                     try {
                         System.out.println("Waiting for the client request");
                         socket = server.accept();
-                        
+
                         serverThread = new ServerThread(socket, h);
                         Thread t = new Thread(serverThread);
                         t.start();
                     } catch (IOException ex) {
                         Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                     }
-            }
+                }
             });
             t1.start();
         } catch (Exception ex) {
@@ -72,10 +72,10 @@ public class Server extends javax.swing.JFrame {
 //                    e.printStackTrace();
 //                }
 //            }
-        
+
     }
-    
-    public ServerThread getServerThread(){
+
+    public ServerThread getServerThread() {
         return this.serverThread;
     }
 
