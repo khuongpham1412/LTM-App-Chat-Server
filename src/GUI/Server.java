@@ -17,7 +17,6 @@ import java.util.logging.Logger;
  * @author Asus
  */
 public class Server extends javax.swing.JFrame {
-
     private ServerSocket server;
     private int port = 9876;
     public Socket socket;

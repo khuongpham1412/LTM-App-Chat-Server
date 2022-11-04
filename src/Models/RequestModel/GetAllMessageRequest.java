@@ -13,16 +13,26 @@ import java.io.Serializable;
 public class GetAllMessageRequest implements Serializable{
     private String roomId;
     private String userSendId;
+    private String userReceivedId;
     private String type;
     
     public GetAllMessageRequest(){
         
     }
 
-    public GetAllMessageRequest(String roomId, String userSendId, String type) {
+    public GetAllMessageRequest(String roomId, String userSendId, String userReceivedId, String type) {
         this.roomId = roomId;
         this.userSendId = userSendId;
+        this.userReceivedId = userReceivedId;
         this.type = type;
+    }
+
+    public String getUserReceivedId() {
+        return userReceivedId;
+    }
+
+    public void setUserReceivedId(String userReceivedId) {
+        this.userReceivedId = userReceivedId;
     }
 
     

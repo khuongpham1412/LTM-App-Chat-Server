@@ -18,6 +18,7 @@ import Models.Message;
 import Models.AccountOnline;
 import Models.RequestModel.CreateGroupChatRequest;
 import Models.RequestModel.GetAllMessageRequest;
+import Models.ResponseModel.GetAllMessageResponse;
 import Models.ResponseModel.MessItemResponse;
 import Models.UserRoom;
 import java.io.IOException;
@@ -149,21 +150,32 @@ public class ServerThread implements Runnable{
                             
                             //Get all messages of room chat
                             ArrayList<Message> messages = new MessageBUL().getAllMessageByRoomId(request.getRoomId());
-                            //Check room have message
+                            ArrayList<GetAllMessageResponse> res = new ArrayList<>();
+                            for(Message item : messages){
+                                Account account = new AccountBUL().getAccountById(item.getUser_send());
+                                GetAllMessageResponse model = new GetAllMessageResponse();
+                                model.setMessage(item);
+                                model.setUsername(account.getUsername());
+                                res.add(model);
+                            }
+                            
                             DataResponse response = new DataResponse();
                             response.setName("GET_ALL_MESSAGE_BY_ROOM_ID_RESPONSE");
                             response.setStatus(Status.SUCCESS);
-                            response.setData(messages);
-                            write(response);
-                            
+                            response.setData(res);
+                            serverBUL.sendPrivate(request.getUserSendId(), request.getUserReceivedId(), response);
                         }
                         case "SEND_MESSAGE_PRIVATE_REQUEST" ->  {
                             Message mess = (Message) message.getRequest();
                             if(new MessageBUL().add(mess)){
+                                Account account = new AccountBUL().getAccountById(mess.getUser_send());
+                                GetAllMessageResponse res = new GetAllMessageResponse();
+                                res.setMessage(mess);
+                                res.setUsername(account.getUsername());
                                 DataResponse response = new DataResponse();
                                 response.setName("SEND_MESSAGE_PRIVATE_RESPONSE");
                                 response.setStatus(Status.SUCCESS);
-                                response.setData(mess);
+                                response.setData(res);
 //                                MessageDAL messageDAL = new MessageDAL();
 //                                messageDAL.add(mess);
                                 serverBUL.sendPrivate(mess.getUser_send(), mess.getUser_receive(), response);
@@ -172,27 +184,30 @@ public class ServerThread implements Runnable{
                         case "SEND_MESSAGE_GROUP_REQUEST" ->  {
                             Message mess = (Message) message.getRequest();
                             if(new MessageBUL().add(mess)){
+                                Account account = new AccountBUL().getAccountById(mess.getUser_send());
+                                GetAllMessageResponse res = new GetAllMessageResponse();
+                                res.setMessage(mess);
+                                res.setUsername(account.getUsername());
                                 DataResponse response = new DataResponse();
                                 response.setName("SEND_MESSAGE_GROUP_RESPONSE");
                                 response.setStatus(Status.SUCCESS);
-                                response.setData(mess);
+                                response.setData(res);
                                 ArrayList<String> accId = new UserRoomBUL().getUserIdByRoomId(mess.getUser_send(), mess.getIdRoom());
                                 serverBUL.sendMultiple(mess.getUser_send(), accId, response);
                             }
                         }
                         case "UPDATE_STATUS_MESSAGE_REQUEST" -> {
-                            Message request = (Message) message.getRequest();
-                            new MessageBUL().updateStatus(request.getStatus(), request.getId());
+                            GetAllMessageResponse request = (GetAllMessageResponse) message.getRequest();
+                            new MessageBUL().updateStatus(request.getMessage().getStatus(), request.getMessage().getId());
                             DataResponse response = new DataResponse();
                             response.setName("UPDATE_STATUS_MESSAGE_RESPONSE");
                             response.setStatus(Status.SUCCESS);
                             response.setData(request);
                             
-                            serverBUL.sendPrivate(request.getUser_send(), request.getUser_receive(), response);
+                            serverBUL.sendPrivate(request.getMessage().getUser_send(), request.getMessage().getUser_receive(), response);
                         }
                         case "CREATE_GROUP_CHAT_REQUEST" -> {
                             CreateGroupChatRequest request = (CreateGroupChatRequest) message.getRequest();
-                            System.out.println("xin chao: "+request.getAccountsId().size());
                             for(String item : request.getAccountsId()){
                                 new UserRoomBUL().add(new UserRoom(item, request.getRoomId(), "PUBLIC","","TEST Name"));
                             }
