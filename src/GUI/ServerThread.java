@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,10 +68,8 @@ public class ServerThread implements Runnable{
                         case "LOGIN_REQUEST" ->  {
                             Account request = (Account) message.getRequest();
                             Account account = new AccountBUL().getAccountByUsername(request.getUsername());
-                            
                             AccountOnline accountOnline = new AccountOnline(is, os, account.getId());
                             serverBUL.addItem(accountOnline);
-                            
                             DataResponse response = new DataResponse();
                             response.setName("LOGIN_RESPONSE");
                             response.setData(account);
@@ -78,10 +77,11 @@ public class ServerThread implements Runnable{
                             
                             write(response);
                         }
+                        //Lay tat ca account da tung nhan tin
                         case "GET_ALL_ACCOUNTS_MESSAGGETED_REQUEST" -> {
                             String userId = (String) message.getRequest();
                             ArrayList<MessItemResponse> messItems = new ArrayList<>();
-                            
+                            //Toan bo room cua id account
                             ArrayList<UserRoom> rooms = new UserRoomBUL().getRoomIdByUserId(userId);
                             if(rooms != null){
                                 for(UserRoom room : rooms){
@@ -89,14 +89,13 @@ public class ServerThread implements Runnable{
                                         ArrayList<UserRoom> accId = new UserRoomBUL().getAllRoomByRoomId(room.getRoomId(), userId);
                                         ArrayList<Message> newMess = new MessageBUL().getNewMessageByRoomId(room.getRoomId());
                                         messItems.add(new MessItemResponse(accId.get(0).getUserId(), room.getRoomId(), room.getName(), newMess.get(0).getMessage(), newMess.get(0).getStatus(),room.getType()));
-                                        
+                                       
                                     }else{
                                         messItems.add(new MessItemResponse("", room.getRoomId(), room.getName(), "", "", room.getType()));   
                                     }
                                 }
                                     
                             }
-                            
                             DataResponse response = new DataResponse();
                             response.setName("GET_ALL_ACCOUNTS_MESSAGGETED_RESPONSE");
                             response.setData(messItems);
@@ -105,28 +104,26 @@ public class ServerThread implements Runnable{
                             write(response);
                         }
                         case "GET_ALL_ACCOUNTS_ONLINE_REQUEST" -> {
-                            
-                        }
-                        case "RESET_PANEL_LEFT_REQUEST" -> {
-                            String userId = (String) message.getRequest();
-                            ArrayList<MessItemResponse> messItems = new ArrayList<>();
-                            ArrayList<UserRoom> rooms = new UserRoomDAL().getRoomIdByUserId(userId);
-                            if(!rooms.isEmpty()){
-                                for(UserRoom roomId : rooms){
-                                    ArrayList<String> accId = new UserRoomDAL().getUserIdByRoomId(userId, roomId.getRoomId());
-                                    ArrayList<Message> newMess = new MessageBUL().getNewMessageByRoomId(roomId.getRoomId());
-                                    Account acc = new AccountBUL().getAccountById(accId.get(0));
-                                    messItems.add(new MessItemResponse("", roomId.getRoomId(), acc.getUsername(), newMess.get(0).getMessage(), newMess.get(0).getStatus(),""));
-                                }
+                            ArrayList<String> accId = new ArrayList<>();
+                            for(AccountOnline item : serverBUL.getListClient()){
+                                accId.add(item.getId());
                             }
-                            
                             DataResponse response = new DataResponse();
-                            response.setName("RESET_PANEL_LEFT_RESPONSE");
-                            response.setData(messItems);
+                            response.setName("GET_ALL_ACCOUNTS_ONLINE_RESPONSE");
+                            response.setData(accId);
                             response.setStatus(Status.SUCCESS);
                             
-                            write(response);
+                            serverBUL.sendAccountOnline(response);
                         }
+                        case "UPDATE_ACCOUNT_ONLINE_REQUEST" -> {
+//                            DataResponse response = new DataResponse();
+//                            response.setName("GET_ALL_ACCOUNTS_ONLINE_RESPONSE");
+//                            response.setData(accId);
+//                            response.setStatus(Status.SUCCESS);
+//                            
+//                            write(response);
+                        }
+                        //Lay tat ca account
                         case "GET_ALL_ACCOUNTS_REQUEST" ->  {
                             ArrayList<Account> accounts = new AccountDAL().getAllAccount();
                             DataResponse response = new DataResponse();
@@ -136,6 +133,33 @@ public class ServerThread implements Runnable{
                             
                             write(response);
                         }
+                        case "RESET_PANEL_LEFT_REQUEST" -> {
+                            String userId = (String) message.getRequest();
+                            ArrayList<MessItemResponse> messItems = new ArrayList<>();
+                            //Toan bo room cua id account
+                            ArrayList<UserRoom> rooms = new UserRoomBUL().getRoomIdByUserId(userId);
+                            if(rooms != null){
+                                for(UserRoom room : rooms){
+                                    if(room.getType().equals("PRIVATE")){
+                                        ArrayList<UserRoom> accId = new UserRoomBUL().getAllRoomByRoomId(room.getRoomId(), userId);
+                                        ArrayList<Message> newMess = new MessageBUL().getNewMessageByRoomId(room.getRoomId());
+                                        messItems.add(new MessItemResponse(accId.get(0).getUserId(), room.getRoomId(), room.getName(), newMess.get(0).getMessage(), newMess.get(0).getStatus(),room.getType()));
+                                       
+                                    }else{
+                                        messItems.add(new MessItemResponse("", room.getRoomId(), room.getName(), "", "", room.getType()));   
+                                    }
+                                }
+                                    
+                            }
+                            
+                            DataResponse response = new DataResponse();
+                            response.setName("RESET_PANEL_LEFT_RESPONSE");
+                            response.setData(messItems);
+                            response.setStatus(Status.SUCCESS);
+                            
+//                            serverBUL.sendAccountOnline(userId, response);
+                        }
+                        //Lay tat ca tin nhan tu phong chat
                         case "GET_ALL_MESSAGE_BY_ROOM_ID_REQUEST" -> {
                             GetAllMessageRequest request = (GetAllMessageRequest) message.getRequest();
                             
@@ -148,6 +172,11 @@ public class ServerThread implements Runnable{
                                 }
                             }
                             
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException ex) {
+                            }
+                            
                             //Get all messages of room chat
                             ArrayList<Message> messages = new MessageBUL().getAllMessageByRoomId(request.getRoomId());
                             ArrayList<GetAllMessageResponse> res = new ArrayList<>();
@@ -158,29 +187,44 @@ public class ServerThread implements Runnable{
                                 model.setUsername(account.getUsername());
                                 res.add(model);
                             }
-                            
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException ex) {
+                            }
                             DataResponse response = new DataResponse();
                             response.setName("GET_ALL_MESSAGE_BY_ROOM_ID_RESPONSE");
                             response.setStatus(Status.SUCCESS);
                             response.setData(res);
                             serverBUL.sendPrivate(request.getUserSendId(), request.getUserReceivedId(), response);
                         }
+                        //Gui tin nhan private
                         case "SEND_MESSAGE_PRIVATE_REQUEST" ->  {
                             Message mess = (Message) message.getRequest();
+                            //Kiem tra 2 user da co phong chat chua (neu chua thi tao phong chat)
+                            if(mess.getIdRoom().equals("")){
+                                Account acc1 = new AccountBUL().getAccountById(mess.getUser_receive());
+                                String room = UUID.randomUUID().toString();
+                                new UserRoomBUL().add(new UserRoom(mess.getUser_send(),  room, "PRIVATE", "NULL", acc1.getUsername()));
+                                acc1 = new AccountBUL().getAccountById(mess.getUser_send());
+                                new UserRoomBUL().add(new UserRoom(mess.getUser_receive(), room, "PRIVATE", "NULL", acc1.getUsername()));
+                                mess.setIdRoom(room);
+                            }
+                            //Them tin nhan vao phong chat
                             if(new MessageBUL().add(mess)){
                                 Account account = new AccountBUL().getAccountById(mess.getUser_send());
                                 GetAllMessageResponse res = new GetAllMessageResponse();
                                 res.setMessage(mess);
                                 res.setUsername(account.getUsername());
+                                res.setRoomType("PRIVATE");
                                 DataResponse response = new DataResponse();
                                 response.setName("SEND_MESSAGE_PRIVATE_RESPONSE");
                                 response.setStatus(Status.SUCCESS);
                                 response.setData(res);
-//                                MessageDAL messageDAL = new MessageDAL();
-//                                messageDAL.add(mess);
+                                System.out.println("user received: "+ mess.getUser_receive());
                                 serverBUL.sendPrivate(mess.getUser_send(), mess.getUser_receive(), response);
                             }
                         }
+                        //Gui tin nhan public
                         case "SEND_MESSAGE_GROUP_REQUEST" ->  {
                             Message mess = (Message) message.getRequest();
                             if(new MessageBUL().add(mess)){
@@ -188,6 +232,7 @@ public class ServerThread implements Runnable{
                                 GetAllMessageResponse res = new GetAllMessageResponse();
                                 res.setMessage(mess);
                                 res.setUsername(account.getUsername());
+                                res.setRoomType("PUBLIC");
                                 DataResponse response = new DataResponse();
                                 response.setName("SEND_MESSAGE_GROUP_RESPONSE");
                                 response.setStatus(Status.SUCCESS);
@@ -196,6 +241,7 @@ public class ServerThread implements Runnable{
                                 serverBUL.sendMultiple(mess.getUser_send(), accId, response);
                             }
                         }
+                        //cap nhat trang thai tin nhan
                         case "UPDATE_STATUS_MESSAGE_REQUEST" -> {
                             GetAllMessageResponse request = (GetAllMessageResponse) message.getRequest();
                             new MessageBUL().updateStatus(request.getMessage().getStatus(), request.getMessage().getId());
@@ -206,6 +252,7 @@ public class ServerThread implements Runnable{
                             
                             serverBUL.sendPrivate(request.getMessage().getUser_send(), request.getMessage().getUser_receive(), response);
                         }
+                        //Tao phong chat nhom
                         case "CREATE_GROUP_CHAT_REQUEST" -> {
                             CreateGroupChatRequest request = (CreateGroupChatRequest) message.getRequest();
                             for(String item : request.getAccountsId()){

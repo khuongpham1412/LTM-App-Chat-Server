@@ -35,6 +35,32 @@ public class ServerThreadBUL {
         }
     }
     
+    public void sendAccountOnline(DataResponse data){
+        for(AccountOnline item : this.listClient){
+//            if(!item.getId().equals(userId)){
+                try {
+                    item.getOs().writeObject(data);
+                    item.getOs().flush();
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerThreadBUL.class.getName()).log(Level.SEVERE, null, ex);
+                }
+//            }
+        }
+    }
+    
+    public void sendOnePerson(String userId, DataResponse data){
+        for(AccountOnline item : this.listClient){
+            if(item.getId().equals(userId)){
+                try {
+                    item.getOs().writeObject(data);
+                    item.getOs().flush();
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerThreadBUL.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    
     public void sendMultiple(String userId, ArrayList<String> userRec, DataResponse data){
         for(AccountOnline item : this.listClient){
             if(item.getId().equals(userId)){

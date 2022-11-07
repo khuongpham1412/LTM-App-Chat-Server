@@ -14,13 +14,15 @@ import java.io.Serializable;
 public class GetAllMessageResponse implements Serializable{
     private Message message;
     private String username;
+    private String roomType;
     public GetAllMessageResponse(){
         
     }
 
-    public GetAllMessageResponse(Message message, String username) {
+    public GetAllMessageResponse(Message message, String username, String roomType) {
         this.message = message;
         this.username = username;
+        this.roomType = roomType;
     }
 
     public Message getMessage() {
@@ -38,5 +40,13 @@ public class GetAllMessageResponse implements Serializable{
     public void setUsername(String username) {
         this.username = username;
     }
-    
+
+    public String getRoomType() {
+        return roomType;
+    }
+
+    public void setRoomType(String roomType) {
+        this.roomType = roomType;
+    }
+
 }
