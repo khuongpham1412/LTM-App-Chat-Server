@@ -34,6 +34,19 @@ public class UserRoomDAL {
         return false;
     }
     
+    public boolean deleteUserByRoomId(String userId, String roomId){
+        try{
+            String sql = "delete tbl_user_room where user_id = ? and room_id = ?";
+            pts = conn.prepareStatement(sql);
+            pts.setString(1,userId);
+            pts.setString(2,roomId);
+            return pts.executeUpdate() > 0;
+        }catch(SQLException e){
+            System.out.print(e);
+        }
+        return false;
+    }
+    
     public ArrayList<UserRoom> getAllRoomByUserId(String id){
         ArrayList<UserRoom> list = new ArrayList<>();
         try{
@@ -131,6 +144,23 @@ public class UserRoomDAL {
             rs = pts.executeQuery();
             while(rs.next()){
                 result.add(rs.getString(1));
+            }
+            return result;
+        }catch(SQLException e){
+            System.out.print(e);
+        }
+        return null;
+    }
+    
+    public String getTypeFromRoomId(String roomId){
+        String result = "";
+        try{
+            String sql = "select top 1 type from tbl_user_room where room_id = ?";
+            pts = conn.prepareStatement(sql); 
+            pts.setString(1,roomId);
+            rs = pts.executeQuery();
+            while(rs.next()){
+                result = rs.getString(1);
             }
             return result;
         }catch(SQLException e){

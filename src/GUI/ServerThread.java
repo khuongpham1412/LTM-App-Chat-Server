@@ -8,8 +8,6 @@ import BUL.AccountBUL;
 import BUL.MessageBUL;
 import BUL.UserRoomBUL;
 import DAL.AccountDAL;
-import DAL.MessageDAL;
-import DAL.UserRoomDAL;
 import Enum.Status;
 import Models.Account;
 import Models.RequestModel.DataRequest;
@@ -18,6 +16,7 @@ import Models.Message;
 import Models.AccountOnline;
 import Models.RequestModel.CreateGroupChatRequest;
 import Models.RequestModel.GetAllMessageRequest;
+import Models.RequestModel.UpdateUserRoomRequest;
 import Models.ResponseModel.GetAllMessageResponse;
 import Models.ResponseModel.MessItemResponse;
 import Models.UserRoom;
@@ -182,9 +181,12 @@ public class ServerThread implements Runnable{
                             ArrayList<GetAllMessageResponse> res = new ArrayList<>();
                             for(Message item : messages){
                                 Account account = new AccountBUL().getAccountById(item.getUser_send());
+                                String type = new UserRoomBUL().getTypeFromRoomId(item.getIdRoom());
                                 GetAllMessageResponse model = new GetAllMessageResponse();
+                                
                                 model.setMessage(item);
                                 model.setUsername(account.getUsername());
+                                model.setRoomType(type);
                                 res.add(model);
                             }
                             try {
@@ -241,6 +243,92 @@ public class ServerThread implements Runnable{
                                 serverBUL.sendMultiple(mess.getUser_send(), accId, response);
                             }
                         }
+                        case "SEND_FILE_PRIVATE_REQUEST" ->  {
+                            Message mess = (Message) message.getRequest();
+                            //Kiem tra 2 user da co phong chat chua (neu chua thi tao phong chat)
+                            if(mess.getIdRoom().equals("")){
+                                Account acc1 = new AccountBUL().getAccountById(mess.getUser_receive());
+                                String room = UUID.randomUUID().toString();
+                                new UserRoomBUL().add(new UserRoom(mess.getUser_send(),  room, "PRIVATE", "NULL", acc1.getUsername()));
+                                acc1 = new AccountBUL().getAccountById(mess.getUser_send());
+                                new UserRoomBUL().add(new UserRoom(mess.getUser_receive(), room, "PRIVATE", "NULL", acc1.getUsername()));
+                                mess.setIdRoom(room);
+                            }
+                            //Them tin nhan vao phong chat
+                            if(new MessageBUL().add(mess)){
+                                Account account = new AccountBUL().getAccountById(mess.getUser_send());
+                                GetAllMessageResponse res = new GetAllMessageResponse();
+                                res.setMessage(mess);
+                                res.setUsername(account.getUsername());
+                                res.setRoomType("PRIVATE");
+                                DataResponse response = new DataResponse();
+                                response.setName("SEND_MESSAGE_PRIVATE_RESPONSE");
+                                response.setStatus(Status.SUCCESS);
+                                response.setData(res);
+                                System.out.println("user received: "+ mess.getUser_receive());
+                                serverBUL.sendPrivate(mess.getUser_send(), mess.getUser_receive(), response);
+                            }
+                        }
+                        //Gui tin nhan public
+                        case "SEND_FILE_GROUP_REQUEST" ->  {
+                            Message mess = (Message) message.getRequest();
+                            if(new MessageBUL().add(mess)){
+                                Account account = new AccountBUL().getAccountById(mess.getUser_send());
+                                GetAllMessageResponse res = new GetAllMessageResponse();
+                                res.setMessage(mess);
+                                res.setUsername(account.getUsername());
+                                res.setRoomType("PUBLIC");
+                                DataResponse response = new DataResponse();
+                                response.setName("SEND_MESSAGE_GROUP_RESPONSE");
+                                response.setStatus(Status.SUCCESS);
+                                response.setData(res);
+                                ArrayList<String> accId = new UserRoomBUL().getUserIdByRoomId(mess.getUser_send(), mess.getIdRoom());
+                                serverBUL.sendMultiple(mess.getUser_send(), accId, response);
+                            }
+                        }
+                        case "SEND_STICKER_PRIVATE_REQUEST" ->  {
+                            Message mess = (Message) message.getRequest();
+                            //Kiem tra 2 user da co phong chat chua (neu chua thi tao phong chat)
+                            if(mess.getIdRoom().equals("")){
+                                Account acc1 = new AccountBUL().getAccountById(mess.getUser_receive());
+                                String room = UUID.randomUUID().toString();
+                                new UserRoomBUL().add(new UserRoom(mess.getUser_send(),  room, "PRIVATE", "NULL", acc1.getUsername()));
+                                acc1 = new AccountBUL().getAccountById(mess.getUser_send());
+                                new UserRoomBUL().add(new UserRoom(mess.getUser_receive(), room, "PRIVATE", "NULL", acc1.getUsername()));
+                                mess.setIdRoom(room);
+                            }
+                            //Them tin nhan vao phong chat
+                            if(new MessageBUL().add(mess)){
+                                Account account = new AccountBUL().getAccountById(mess.getUser_send());
+                                GetAllMessageResponse res = new GetAllMessageResponse();
+                                res.setMessage(mess);
+                                res.setUsername(account.getUsername());
+                                res.setRoomType("PRIVATE");
+                                DataResponse response = new DataResponse();
+                                response.setName("SEND_MESSAGE_PRIVATE_RESPONSE");
+                                response.setStatus(Status.SUCCESS);
+                                response.setData(res);
+                                System.out.println("user received: "+ mess.getUser_receive());
+                                serverBUL.sendPrivate(mess.getUser_send(), mess.getUser_receive(), response);
+                            }
+                        }
+                        //Gui tin nhan public
+                        case "SEND_STICKER_GROUP_REQUEST" ->  {
+                            Message mess = (Message) message.getRequest();
+                            if(new MessageBUL().add(mess)){
+                                Account account = new AccountBUL().getAccountById(mess.getUser_send());
+                                GetAllMessageResponse res = new GetAllMessageResponse();
+                                res.setMessage(mess);
+                                res.setUsername(account.getUsername());
+                                res.setRoomType("PUBLIC");
+                                DataResponse response = new DataResponse();
+                                response.setName("SEND_MESSAGE_GROUP_RESPONSE");
+                                response.setStatus(Status.SUCCESS);
+                                response.setData(res);
+                                ArrayList<String> accId = new UserRoomBUL().getUserIdByRoomId(mess.getUser_send(), mess.getIdRoom());
+                                serverBUL.sendMultiple(mess.getUser_send(), accId, response);
+                            }
+                        }
                         //cap nhat trang thai tin nhan
                         case "UPDATE_STATUS_MESSAGE_REQUEST" -> {
                             GetAllMessageResponse request = (GetAllMessageResponse) message.getRequest();
@@ -265,6 +353,19 @@ public class ServerThread implements Runnable{
                             response.setData(mess);
                             
                             serverBUL.sendMultiple("", request.getAccountsId(), response);
+                        }
+                        case "LEAVE_GROUP_REQUEST" -> {
+                            UpdateUserRoomRequest request = (UpdateUserRoomRequest) message.getRequest();
+                            if(new UserRoomBUL().deleteUserByRoomId(request.getUserId(), request.getRoomId())){
+                                MessItemResponse mess = new MessItemResponse("ALL", request.getRoomId(), "", "", "", "PUBLIC");
+                                DataResponse response = new DataResponse();
+                                response.setName("LEAVE_GROUP_RESPONSE");
+                                response.setStatus(Status.SUCCESS);
+                                response.setData(mess);
+
+                                write(response);
+                            }
+                            
                         }
                         default ->  {
                             System.out.println("Option not exists !!!");

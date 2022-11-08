@@ -22,6 +22,9 @@ public class UserRoomBUL {
    public boolean add(UserRoom user){
        return userRoomDAL.add(user);
    }
+   public boolean deleteUserByRoomId(String userId, String roomId){
+       return  userRoomDAL.deleteUserByRoomId(userId, roomId);
+   }
     
     public ArrayList<UserRoom> getAllRoomByRoomId(String roomId, String userId){
         return userRoomDAL.getAllRoomByRoomId(roomId, userId);
@@ -31,5 +34,8 @@ public class UserRoomBUL {
     }
      public ArrayList<String> getUserIdByRoomId(String userId,String roomId){
          return userRoomDAL.getUserIdByRoomId(userId, roomId);
+     }
+     public String getTypeFromRoomId(String roomId){
+         return userRoomDAL.getTypeFromRoomId(roomId);
      }
 }
