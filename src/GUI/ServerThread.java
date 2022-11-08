@@ -258,10 +258,13 @@ public class ServerThread implements Runnable{
                             for(String item : request.getAccountsId()){
                                 new UserRoomBUL().add(new UserRoom(item, request.getRoomId(), "PUBLIC","","TEST Name"));
                             }
+                            MessItemResponse mess = new MessItemResponse("ALL", request.getRoomId(), "TEST Name", "", "SENT", "PUBLIC");
                             DataResponse response = new DataResponse();
                             response.setName("CREATE_GROUP_CHAT_RESPONSE");
                             response.setStatus(Status.SUCCESS);
-                            response.setData("TAO GROUP THANH CONG");
+                            response.setData(mess);
+                            
+                            serverBUL.sendMultiple("", request.getAccountsId(), response);
                         }
                         default ->  {
                             System.out.println("Option not exists !!!");
