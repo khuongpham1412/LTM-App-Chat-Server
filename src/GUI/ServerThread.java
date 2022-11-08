@@ -65,10 +65,57 @@ public class ServerThread implements Runnable{
                     message = (DataRequest) is.readObject();
                     switch(message.getName()){
                         case "LOGIN_REQUEST" ->  {
+//                            Account request = (Account) message.getRequest();
+//                            Account account = new AccountBUL().checkLogin(request.getUsername(), request.getPassword());
+//                            //Neu tai khoan dung
+//                            if(account.getId() != null){
+//                                for(AccountOnline item : serverBUL.listClient){
+//                                    if(account.getId().equals(item.getId())){
+//                                        DataResponse response = new DataResponse();
+//                                        response.setName("LOGIN_RESPONSE");
+//                                        response.setData("Tai khoan dang dang nhap tai noi khac!!!");
+//                                        response.setStatus(Status.WARNING);
+//
+//                                        write(response);
+//                                        return;
+//                                    }
+//                                }
+//                                //Tai khoan login thanh cong
+//                                if(account.getActive() == 1){
+//                                    AccountOnline accountOnline = new AccountOnline(is, os, account.getId());
+//                                    serverBUL.addItem(accountOnline);
+//                                    DataResponse response = new DataResponse();
+//                                    response.setName("LOGIN_RESPONSE");
+//                                    response.setData(account);
+//                                    response.setStatus(Status.SUCCESS);
+//
+//                                    write(response);
+//                                    return;
+//                                }
+//                                //Tai khoan bi khoa
+//                                else if(account.getActive() == 0){
+//                                    DataResponse response = new DataResponse();
+//                                    response.setName("LOGIN_RESPONSE");
+//                                    response.setData("Tai khoan dang bi khoa!!!");
+//                                    response.setStatus(Status.WARNING);
+//                                    write(response);
+//                                }
+//                            }else{
+//                                DataResponse response = new DataResponse();
+//                                response.setName("LOGIN_RESPONSE");
+//                                response.setData("Tai khoan hoac mat khau khong chinh xac!!!");
+//                                response.setStatus(Status.ERROR);
+//
+//                                write(response);
+//                                return;
+//                            }
+
                             Account request = (Account) message.getRequest();
                             Account account = new AccountBUL().getAccountByUsername(request.getUsername());
+                            
                             AccountOnline accountOnline = new AccountOnline(is, os, account.getId());
                             serverBUL.addItem(accountOnline);
+                            
                             DataResponse response = new DataResponse();
                             response.setName("LOGIN_RESPONSE");
                             response.setData(account);
@@ -78,6 +125,7 @@ public class ServerThread implements Runnable{
                         }
                         //Lay tat ca account da tung nhan tin
                         case "GET_ALL_ACCOUNTS_MESSAGGETED_REQUEST" -> {
+                            System.out.println("hi 1");
                             String userId = (String) message.getRequest();
                             ArrayList<MessItemResponse> messItems = new ArrayList<>();
                             //Toan bo room cua id account

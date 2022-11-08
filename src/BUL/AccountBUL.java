@@ -24,6 +24,10 @@ public class AccountBUL {
         return accountDAL.getAllAccount();
     }
     
+    public Account checkLogin(String username, String password){
+        return accountDAL.checkLogin(username, password);
+    }
+    
     public Account getAccountByUsername(String username){
         return accountDAL.getAccountByUsername(username);
     }

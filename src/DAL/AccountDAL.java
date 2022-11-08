@@ -57,11 +57,32 @@ public class AccountDAL {
                 account.setId(rs.getString(1));
                 account.setUsername(rs.getString(2));
                 account.setPassword(rs.getString(3));
+                account.setActive(rs.getInt(4));
             }
+            return account;
         }catch (SQLException ex){
             System.out.println("SVDAO docDSSV");
         }
-        return account;
+        return null;
+    }
+    
+    public Account checkLogin(String username, String password){
+        Account account=new Account();
+        try{
+            String query="Select * from tbl_account where username = '"+username+"' and password = '"+password+"'";
+            st=conn.createStatement();
+            rs= st.executeQuery(query);
+            while(rs.next()){
+                account.setId(rs.getString(1));
+                account.setUsername(rs.getString(2));
+                account.setPassword(rs.getString(3));
+                account.setActive(rs.getInt(4));
+            }
+            return account;
+        }catch (SQLException ex){
+            System.out.println("SVDAO docDSSV");
+        }
+        return null;
     }
     
     public Account getAccountById(String id){

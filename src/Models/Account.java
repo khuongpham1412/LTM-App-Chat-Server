@@ -14,15 +14,17 @@ public class Account implements Serializable{
     private String id;
     private String username;
     private String password;
+    private int active;
     
     public Account(){
         
     }
 
-    public Account(String id, String username, String password) {
+    public Account(String id, String username, String password, int active) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.active = active;
     }
 
     public String getId() {
@@ -48,4 +50,13 @@ public class Account implements Serializable{
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public int getActive() {
+        return active;
+    }
+
+    public void setActive(int active) {
+        this.active = active;
+    }
+    
 }
