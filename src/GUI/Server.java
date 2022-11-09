@@ -23,7 +23,7 @@ public class Server extends javax.swing.JFrame {
     private ObjectInputStream is;
     private ObjectOutputStream os;
     private ServerThread serverThread;
-    public static volatile ServerThreadBUL h;
+    public static volatile ServerThreadBUL serverThreadBUL;
 
     /**
      * Creates new form Server
@@ -36,13 +36,13 @@ public class Server extends javax.swing.JFrame {
     private void connect() {
         try {
             server = new ServerSocket(port);
+            System.out.println("Waiting for the client request");
             Thread t1 = new Thread(() -> {
                 while (true) {
                     try {
-                        System.out.println("Waiting for the client request");
                         socket = server.accept();
 
-                        serverThread = new ServerThread(socket, h);
+                        serverThread = new ServerThread(socket, serverThreadBUL);
                         Thread t = new Thread(serverThread);
                         t.start();
                     } catch (IOException ex) {
@@ -134,7 +134,7 @@ public class Server extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Server().setVisible(true);
-                h = new ServerThreadBUL();
+                serverThreadBUL = new ServerThreadBUL();
             }
         });
     }

@@ -97,12 +97,13 @@ public class MessageDAL {
         return null;
     }
     
-    public ArrayList<Message> getAllMessageByRoomIdExceptSeenStatus(String roomId){
+    public ArrayList<Message> getAllMessageByRoomIdExceptSeenStatus(String roomId, String userIdReceived){
         ArrayList<Message> list = new ArrayList<>();
         try{
-            String sql = "select * from tbl_message where room_id = ? and status != 'SEEN'";
+            String sql = "select * from tbl_message where room_id = ? and user_received_id = ? and status != 'SEEN'";
             pts = conn.prepareStatement(sql);
             pts.setString(1,roomId);
+            pts.setString(2,userIdReceived);
             rs = pts.executeQuery();
             while(rs.next()){
                 Message item = new Message();
@@ -118,6 +119,8 @@ public class MessageDAL {
             }
             return list;
         }catch(SQLException e){
+            
+            
             System.out.print(e);
         }
         return null;

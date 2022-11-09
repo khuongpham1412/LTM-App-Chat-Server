@@ -31,7 +31,7 @@ public class MessageBUL {
     public boolean updateStatus(String status, String id){
         return messageDAL.updateStatus(status, id);
     }
-    public ArrayList<Message> getAllMessageByRoomIdExceptSeenStatus(String roomId){
-        return messageDAL.getAllMessageByRoomIdExceptSeenStatus(roomId);
+    public ArrayList<Message> getAllMessageByRoomIdExceptSeenStatus(String roomId, String userIdReceived){
+        return messageDAL.getAllMessageByRoomIdExceptSeenStatus(roomId, userIdReceived);
     }
 }
